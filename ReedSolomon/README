@@ -1,0 +1,3 @@
+It is just a demo to show how Reed-Solomon works. It may not able to run properly under many cases.
+More specifically, there might be some problems on my Poly class(such as divmod may cause stack overflow orz). But I not want (and dont know how ) to fix
+:(
