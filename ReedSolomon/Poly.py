@@ -34,12 +34,8 @@ class Polynomial(object):#highest at front
 
         return self.__class__(reversed(terms))
     
-    def __divmod__(dividend, divisor):
+    def __divmod__(dividend, divisor):#low efficiency
         class_ = dividend.__class__
-
-        # See how many times the highest order term
-        # of the divisor can go into the highest order term of the dividend
-
         dividend_power = dividend.degree()
         dividend_coefficient = dividend.coef[0]
 
@@ -48,23 +44,18 @@ class Polynomial(object):#highest at front
 
         quotient_power = dividend_power - divisor_power
         if quotient_power < 0:
-            # Doesn't divide at all, return 0 for the quotient and the entire
-            # dividend as the remainder
+
             return class_((0,)), dividend
 
-        # Compute how many times the highest order term in the divisor goes
-        # into the dividend
         quotient_coefficient = dividend_coefficient // divisor_coefficient
         quotient = class_( (quotient_coefficient,) + (0,) * quotient_power )
 
         remander = dividend - quotient * divisor
 
         if remander.coef == (0,):
-            # Goes in evenly with no remainder, we're done
             return quotient, remander
 
-        # There was a remainder, see how many times the remainder goes into the
-        # divisor
+
         morequotient, remander = divmod(remander, divisor)
         return quotient + morequotient, remander
     def __floordiv__(self,other):
