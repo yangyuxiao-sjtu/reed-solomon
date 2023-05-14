@@ -70,7 +70,7 @@ class GF256(int):
         e = GF256.logtable[self]
         return GF256(GF256.exptable[255 - e])
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         return self * GF256(other).inverse()
     def __rdiv__(self, other):
         return self.inverse() * other
