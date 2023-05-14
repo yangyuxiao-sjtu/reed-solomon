@@ -138,7 +138,7 @@ class rscoder:
             if(num==GF(0)):
                 print("error locate:",n-i-1)
                 ret.append(n-i-1)
-        error_length = len(ret)
+        error_length = len(ret)#真正有错误的位数
         X_matrix=np.zeros((error_length,error_length),dtype=GF)
         alpha = GF(3)
         for i in range(0,error_length):
@@ -151,8 +151,8 @@ class rscoder:
       
         if(error_length==1):
             Y_vec.append( S_vec[0]*X_matrix[0][0].inverse())  
-        else :Y_vec=self.gauss_jordan(X_matrix,S_vec)
-        # Y_vec = np.linalg.lstsq(X_matrix, S_vec, rcond=None)[0]
+        else :Y_vec=self.gauss_jordan(X_matrix,S_vec)# 应该对一个非方阵的方程组求解，但是我不会:(
+        # Y_vec = np.linalg.lstsq(X_matrix, S_vec, rcond=None)[0] numpy 不知道为啥用不了
         # print("ret",ret)
         r_true = list(received)
         for i in range(0,error_length):
