@@ -66,12 +66,11 @@ class GF256(int):
         return GF256(GF256.exptable[log_ans])
 
     def inverse(self):
-        if(self==0):print("FUCK!")
         e = GF256.logtable[self]
         return GF256(GF256.exptable[255 - e])
 
     def __truediv__(self, other):
-        return self * GF256(other).inverse()
+        return GF256(self * GF256(other).inverse())
     def __rdiv__(self, other):
         return self.inverse() * other
 
