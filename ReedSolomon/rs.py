@@ -1,5 +1,5 @@
 
-from GF import  GF256int as GF
+from GF import  GF256 as GF
 from Poly import Polynomial
 import numpy as np
 class rscoder:
@@ -42,6 +42,7 @@ class rscoder:
         s=[]
         for i in range(0,n-k+1):
             s.append(r.evaluate(GF(3)**i))
+            # if(s[i]!=GF(0)):print("ERROR!",i)
         # print("r is",r.coef)
         tmp=GF(0)
         
@@ -103,6 +104,7 @@ class rscoder:
         # 返回解向量
         return M[:, -1]
     def decode(self,received):
+        # print(received)
         n=self.n
         k=self.k
         m=n-k
@@ -116,35 +118,44 @@ class rscoder:
                     M[i][j]=S[i+j]
         L = np.zeros((v,1),dtype=GF)
         for i in range(0,v):
-            L[i]=-GF(S[v+i])
+            L[i]=-(S[v+i])
         # print(M)
-        M_inv=self.gf_invert(M)
-        gamma = np.dot(M_inv,L)
-        gamma_new = np.vstack((gamma, np.array([GF(1)])))
+        # M_inv=self.gf_invert(M)
+        # gamma = np.dot(M_inv,L)
+        gamma = self.gauss_jordan(M,L)
+        # print("gamma:",gamma)
+        gamma_new = np.concatenate((gamma,np.array([GF(1)],dtype=GF) ),axis=0)
+        # print(gamma_new)
         gamma = list()
         # for i in gamma_new:
         #     gamma.append(GF(int(gamma_new)))
         G = Polynomial(list(gamma_new))
         ret=list()
+        fake_error=list()
         rev=reversed(received)
         for i in range(0,n):
             num = G.evaluate(GF(3)**(-i))
-            if(num==GF(0) or len(ret)+(n-i)<=v):
-               ret.append(i)
-        X_matrix=np.zeros((m,v),dtype=GF)
+            if(num==GF(0)):
+                print("error locate:",n-i-1)
+                ret.append(n-i-1)
+        error_length = len(ret)
+        X_matrix=np.zeros((error_length,error_length),dtype=GF)
         alpha = GF(3)
-        # print("v:",v)
-        # print("X:",len(X_matrix[0]))
-        # print("ret:",len(ret))
-        for i in range(0,m):
-            for j in range(0,v):
+        for i in range(0,error_length):
+            for j in range(0,error_length):
                 X_matrix[i][j]=(alpha**ret[j])**i
-        S_vec = np.zeros((m,1),dtype=GF)
-        for i in range(0,m):
+        S_vec = np.zeros((error_length,1),dtype=GF)
+        for i in range(0,error_length):
             S_vec[i]=S[i]
-        Y_vec=self.gauss_jordan(X_matrix,S_vec)
+        Y_vec=list()
+      
+        if(error_length==1):
+            Y_vec.append( S_vec[0]*X_matrix[0][0].inverse())  
+        else :Y_vec=self.gauss_jordan(X_matrix,S_vec)
+        # Y_vec = np.linalg.lstsq(X_matrix, S_vec, rcond=None)[0]
+        # print("ret",ret)
         r_true = list(received)
-        for i in range(0,v):
+        for i in range(0,error_length):
             Ii=ret[i]
             r_true[Ii]-=Y_vec[i]
         return r_true
